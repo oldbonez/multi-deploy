@@ -29,15 +29,29 @@ jobs:
       - run: >-
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       - run:
-          docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
-      - run: docker run -e CI=true $DOCKER_REACT_TEST npm test
-      - run: docker build -t $DOCKER_MULTI_CLNT ./client
-      - run: docker build -t $DOCKER_MULTI_NGNX ./nginx
-      - run: docker build -t $DOCKER_MULTI_SRVS ./server
-      - run: docker build -t $DOCKER_MULTI_WRKS ./worker
+          docker build -t ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
+      - run: docker run -e CI=true ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_REACT_TEST npm test
+      - run: docker build -t ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_CLNT ./client
+      - run: docker build -t ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_NGNX ./nginx
+      - run: docker build -t ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_SRVS ./server
+      - run: docker build -t ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_WRKS ./worker
       - run: >-
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-      - run: docker push $DOCKER_MULTI_CLNT
-      - run: docker push $DOCKER_MULTI_NGNX
-      - run: docker push $DOCKER_MULTI_SRVS
-      - run: docker push $DOCKER_MULTI_WRKS
+      - run: docker push ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_CLNT
+      - run: docker push ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_NGNX
+      - run: docker push ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_SRVS
+      - run: docker push ${{ secrets.DOCKER_REPOSITORY }}/$DOCKER_MULTI_WRKS
+
+  trivy:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Scan with Trivy
+      uses: actions/trivy@v1
+      with:
+        args: --severity CRITICAL --quiet $DOCKER_REACT_TEST $DOCKER_MULTI_CLNT $DOCKER_MULTI_NGNX $DOCKER_MULTI_NGNX $DOCKER_MULTI_SRVS $DOCKER_MULTI_WRKS
+        registry: ${{ secrets.DOCKER_REPOSITORY }}
+        auth_header: ${{ format("Bearer {0}", secrets.DOCKERHUB_TOKEN) }}
