@@ -1,0 +1,38 @@
+name: Build-Test-Push
+on:
+  push:
+    branches:
+      - master
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
+  ECR_REPOSITORY: myproject/myimage
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+
+build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out
+    uses: actions/checkout@v2
+    with:
+        ref: master
+
+    - name: Login to AWS ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build
+    run: |
+        docker pull $ECR_REGISTRY/$ECR_REPOSITORY || true
+        docker build . -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+    - name: Test
+    run: |
+        docker run $ECR_REGISTRY/$ECR_REPOSITORY:latest /bin/bash -c "make test"
+
+    - name: Push
+    run: |
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY

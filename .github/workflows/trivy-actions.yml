@@ -1,0 +1,29 @@
+name: Trivy Scanner
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_REPOSITORY: <YOUR_DOCKER_REPOSITORY>
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Scan with Trivy
+      uses: actions/trivy@v1
+      with:
+        args: --severity CRITICAL --quiet <DOCKER_IMAGE_1> <DOCKER_IMAGE_2> ... <DOCKER_IMAGE_N>
+        registry: ${{ env.DOCKER_REPOSITORY }}
+        username: <YOUR_REGISTRY_USERNAME>
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+#In the above workflow, replace <YOUR_DOCKER_REPOSITORY>, <YOUR_REGISTRY_URLS>, <YOUR_REGISTRY_USERNAME>, and <DOCKER_IMAGE_1>, <DOCKER_IMAGE_2>, ..., <DOCKER_IMAGE_N> with your actual values.
+
+# Note: The secrets DOCKER_CONFIG and REGISTRY_PASSWORD should be created in your GitHub repository's Settings > Secrets section.

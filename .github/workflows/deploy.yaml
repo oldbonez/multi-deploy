@@ -1,0 +1,43 @@
+name: Docker CI
+
+
+env:
+  DOCKER_REACT_TEST: oldbonedocker/react-test
+  DOCKER_MULTI_CLNT: oldbonedocker/multi-deploy:client
+  DOCKER_MULTI_NGNX: oldbonedocker/multi-deploy:nginx
+  DOCKER_MULTI_SRVS: oldbonedocker/multi-deploy:server
+  DOCKER_MULTI_WRKS: oldbonedocker/multi-deploy:worker
+  IMAGE_TAG: ${{ github.sha }}
+
+
+on:
+  push:
+    branches:
+      - production
+      - feature/*
+  pull_request:
+     branches:
+       - production
+  jobs:
+    build:
+      runs-on: '${{ matrix.os }}'
+    strategy:
+      matrix:
+       os: [ubuntu-22.04, ubuntu-20.04]
+    steps:
+      - uses: actions/checkout@v3
+      - run: >-
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      - run:
+          docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
+      - run: docker run -e CI=true $DOCKER_REACT_TEST npm test
+      - run: docker build -t $DOCKER_MULTI_CLNT ./client
+      - run: docker build -t $DOCKER_MULTI_NGNX ./nginx
+      - run: docker build -t $DOCKER_MULTI_SRVS ./server
+      - run: docker build -t $DOCKER_MULTI_WRKS ./worker
+      - run: >-
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      - run: docker push $DOCKER_MULTI_CLNT
+      - run: docker push $DOCKER_MULTI_NGNX
+      - run: docker push $DOCKER_MULTI_SRVS
+      - run: docker push $DOCKER_MULTI_WRKS
