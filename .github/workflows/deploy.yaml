@@ -54,4 +54,4 @@ jobs:
       with:
         args: --severity CRITICAL --quiet $DOCKER_REACT_TEST $DOCKER_MULTI_CLNT $DOCKER_MULTI_NGNX $DOCKER_MULTI_NGNX $DOCKER_MULTI_SRVS $DOCKER_MULTI_WRKS
         registry: ${{ secrets.DOCKER_REPOSITORY }}
-        auth_header: ${{ format("Bearer {0}", secrets.DOCKERHUB_TOKEN) }}
+        auth_header: ${{ format("{0}", secrets.DOCKERHUB_TOKEN) }}
