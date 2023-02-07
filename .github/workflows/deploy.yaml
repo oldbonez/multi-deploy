@@ -16,14 +16,15 @@ on:
       - production
       - feature/*
   pull_request:
-     types: [opened, synchronize, reopened]
      branches:
       - production
+     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-20.0]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
