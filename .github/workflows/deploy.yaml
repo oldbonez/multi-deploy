@@ -7,7 +7,7 @@ env:
   DOCKER_MULTI_NGNX: oldbonedocker/multi-deploy:nginx
   DOCKER_MULTI_SRVS: oldbonedocker/multi-deploy:server
   DOCKER_MULTI_WRKS: oldbonedocker/multi-deploy:worker
-  IMAGE_TAG: ${{ github.sha }}-${{ runner.os }}
+  IMAGE_TAG: ${{ github.sha }}
 
 
 on:
