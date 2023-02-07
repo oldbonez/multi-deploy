@@ -7,7 +7,7 @@ env:
   DOCKER_MULTI_NGNX: oldbonedocker/multi-deploy:nginx
   DOCKER_MULTI_SRVS: oldbonedocker/multi-deploy:server
   DOCKER_MULTI_WRKS: oldbonedocker/multi-deploy:worker
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_TAG: ${{ github.sha }}-${{ runner.os }}
 
 
 on:
@@ -24,7 +24,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-20.0]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -59,11 +59,14 @@ jobs:
            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 #  trivy:
+#    strategy:
+#      matrix:
+#        docker_images: [ "${{ env.DOCKER_REACT_TEST }}, ${{ env.DOCKER_MULTI_CLNT }},${{ env.DOCKER_MULTI_NGNX }}, ${{ env.DOCKER_MULTI_SRVS }},${{ env.DOCKER_MULTI_WRKS }}" ]
 #    needs: [ build ]
 #    runs-on: ubuntu-latest
 #    steps:
 #    - name: Checkout code
-#      uses: actions/checkout@v3
+#    uses: actions/checkout@v3
 #
 #    - name: Scan with Trivy
 #      uses: aquasecurity/trivy-action@0.9.0
@@ -72,7 +75,22 @@ jobs:
 #        registry: ${{ secrets.DOCKER_REPOSITORY }}
 #        username: ${{ secrets.DOCKERHUB_USERNAME }}
 #        auth_header: ${{ secrets.DOCKERHUB_TOKEN }}
-
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Scan the webapplication
+    steps:
+      - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: master
+      - name: ZAP Scan
+      uses: zaproxy/action-full-scan@v0.4.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        docker_name: 'owasp/zap2docker-stable'
+        target: 'https://www.zaproxy.org/'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
 #  trivy:
 #     needs: [ build ]
 #     runs-on: ubuntu-latest
