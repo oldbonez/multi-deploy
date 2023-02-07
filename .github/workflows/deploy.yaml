@@ -75,19 +75,19 @@ jobs:
 #        registry: ${{ secrets.DOCKER_REPOSITORY }}
 #        username: ${{ secrets.DOCKERHUB_USERNAME }}
 #        auth_header: ${{ secrets.DOCKERHUB_TOKEN }}
-zap_scan:
-  needs: [build]
-  runs-on: ubuntu-latest
-  name: Scan the webapplication
-  steps:
-    - name: ZAP Scan
-      uses: zaproxy/action-full-scan@v0.4.0
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        docker_name: "owasp/zap2docker-stable"
-        target: "https://${{ needs.deploy.outputs.service-url }}"
-        rules_file_name: ".zap/rules.tsv"
-        cmd_options: "-a"
+  zap_scan:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    name: Scan the webapplication
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.4.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: "owasp/zap2docker-stable"
+          target: "https://${{ needs.deploy.outputs.service-url }}"
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-a"
 #  trivy:
 #     needs: [ build ]
 #     runs-on: ubuntu-latest
