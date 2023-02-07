@@ -16,8 +16,8 @@ on:
       - production
       - feature/*
   pull_request:
-    types: [opened, synchronize, reopened]
-    branches:
+     types: [opened, synchronize, reopened]
+     branches:
       - production
 jobs:
   build:
@@ -42,6 +42,20 @@ jobs:
       - run: docker push $DOCKER_MULTI_NGNX
       - run: docker push $DOCKER_MULTI_SRVS
       - run: docker push $DOCKER_MULTI_WRKS
+
+      sonarcloud:
+        name: SonarCloud
+        needs: [ build ]
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+            with:
+              fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          - name: SonarCloud Scan
+         uses: SonarSource/sonarcloud-github-action@master
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 #  trivy:
 #    needs: [ build ]
@@ -72,17 +86,6 @@ jobs:
 #      registry: ${{ secrets.DOCKER_REPOSITORY }}
 #      username: ${{ secrets.DOCKERHUB_USERNAME }}
 #      auth_header: ${{ secrets.DOCKERHUB_TOKEN }}
-   sonarcloudscan:
-     needs: [ build ]
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v3
-         with:
-           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-       - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
 
