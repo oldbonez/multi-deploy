@@ -58,6 +58,9 @@ jobs:
 
   trivyscans:
     name: Trivyscans
+    strategy:
+      matrix:
+        docker_images: [ oldbonedocker/react-test ]
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
@@ -70,7 +73,9 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "docker.io/oldbonedocker/react-test"
-          format: "table"
+          format: "template"
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results.sarif'
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
