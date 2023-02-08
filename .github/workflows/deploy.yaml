@@ -56,11 +56,8 @@ jobs:
       - run: docker push $DOCKER_MULTI_SRVS
       - run: docker push $DOCKER_MULTI_WRKS
 
-  trivyscans:
-    name: Trivyscans
-    strategy:
-      matrix:
-        docker_images: [ oldbonedocker/react-test, oldbonedocker/multi-client, oldbonedocker/multi-nginx, oldbonedocker/multi-server, oldbonedocker/multi-worker ]
+  SAST:
+    name: vulnerability scan
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
@@ -68,11 +65,14 @@ jobs:
       - name: build docker images to scan
         run: |
           docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
-
+          docker build -t $DOCKER_MULTI_CLNT ./client
+          docker build -t $DOCKER_MULTI_NGNX ./nginx
+          docker build -t $DOCKER_MULTI_SRVS ./server
+          docker build -t $DOCKER_MULTI_WRKS ./worker
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/$DOCKER_REACT_TEST"
+          image-ref: "docker.io/oldbonedocker/react-test"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
