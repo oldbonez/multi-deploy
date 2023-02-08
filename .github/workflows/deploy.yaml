@@ -21,6 +21,7 @@ on:
       - production
 
 jobs:
+
   git-leaks:
     name: secrets detection
     runs-on: ubuntu-latest
@@ -33,6 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
+    name: docker_container_build_and_scan
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -100,65 +102,6 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL"
-
-#  SAST:
-#    name: vulnerability scan
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: checkout code
-#        uses: actions/checkout@v3
-#      - name: build docker images to scan
-#        run: |
-#          docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
-#          docker build -t $DOCKER_MULTI_CLNT ./client
-#          docker build -t $DOCKER_MULTI_NGNX ./nginx
-#          docker build -t $DOCKER_MULTI_SRVS ./server
-#          docker build -t $DOCKER_MULTI_WRKS ./worker
-#      - name: devsasttst
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: "docker.io/oldbonedocker/react-test"
-#          format: "table"
-#          exit-code: "1"
-#          ignore-unfixed: true
-#          vuln-type: "os,library"
-#          severity: "CRITICAL"
-#      - name: clientscan
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: "docker.io/oldbonedocker/multi-deploy:client"
-#          format: "table"
-#          exit-code: "1"
-#          ignore-unfixed: true
-#          vuln-type: "os,library"
-#          severity: "CRITICAL"
-#      - name: frontendscan
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: "docker.io/oldbonedocker/multi-deploy:nginx"
-#          format: "table"
-#          exit-code: "1"
-#          ignore-unfixed: true
-#          vuln-type: "os,library"
-#          severity: "CRITICAL"
-#      - name: srvscan
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: "docker.io/oldbonedocker/multi-deploy:server"
-#          format: "table"
-#          exit-code: "1"
-#          ignore-unfixed: true
-#          vuln-type: "os,library"
-#          severity: "CRITICAL"
-#      - name: workerscan
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: "docker.io/oldbonedocker/multi-deploy:worker"
-#          format: "table"
-#          exit-code: "1"
-#          ignore-unfixed: true
-#          vuln-type: "os,library"
-#          severity: "CRITICAL"
 
   sonarcloud:
     name: SonarCloud
