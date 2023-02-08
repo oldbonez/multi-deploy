@@ -67,23 +67,18 @@ jobs:
         uses: actions/checkout@v3
       - name: build docker images to scan
         run: |
-          docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
+          docker build -t $DOCKER_REACT_TEST-${{ github.sha }}-{{ runner.os }} -f ./client/Dockerfile.dev ./client
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/oldbonedocker/react-test"
-          format: "template"
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
+          image-ref: "docker.io/$DOCKER_REACT_TEST-${{ github.sha }}-{{ runner.os }}"
+          format: "table"
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL"
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
+
 
   sonarcloud:
     name: SonarCloud
