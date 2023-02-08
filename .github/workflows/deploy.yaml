@@ -21,6 +21,17 @@ on:
       - production
 
 jobs:
+  git-leaks:
+    name: secrets detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
     strategy:
       matrix:
@@ -43,6 +54,15 @@ jobs:
       - run: docker push $DOCKER_MULTI_NGNX
       - run: docker push $DOCKER_MULTI_SRVS
       - run: docker push $DOCKER_MULTI_WRKS
+      #     - name: Run Trivy vulnerability scanner
+      #       uses: aquasecurity/trivy-action@master
+      #       with:
+      #         image-ref: "${{ secrets.DOCKER_NAMESPACE }}/${{ secrets.DOCKER_REPOSITORY }}:sha-${{ github.sha }}"
+      #         format: "table"
+      #         exit-code: "1"
+      #         ignore-unfixed: true
+      #         vuln-type: "os,library"
+      #         severity: "CRITICAL"
 
   sonarcloud:
     name: SonarCloud
@@ -58,47 +78,16 @@ jobs:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-#  trivy:
-#    strategy:
-#      matrix:
-#        docker_images: [ "${{ env.DOCKER_REACT_TEST }}, ${{ env.DOCKER_MULTI_CLNT }},${{ env.DOCKER_MULTI_NGNX }}, ${{ env.DOCKER_MULTI_SRVS }},${{ env.DOCKER_MULTI_WRKS }}" ]
+#  zap_scan:
 #    needs: [ build ]
 #    runs-on: ubuntu-latest
+#    name: Scan the webapplication
 #    steps:
-#    - name: Checkout code
-#    uses: actions/checkout@v3
-#
-#    - name: Scan with Trivy
-#      uses: aquasecurity/trivy-action@0.9.0
-#      with:
-#        args: --severity CRITICAL --quiet $DOCKER_REACT_TEST $DOCKER_MULTI_CLNT $DOCKER_MULTI_NGNX $DOCKER_MULTI_SRVS $DOCKER_MULTI_WRKS
-#        registry: ${{ secrets.DOCKER_REPOSITORY }}
-#        username: ${{ secrets.DOCKERHUB_USERNAME }}
-#        auth_header: ${{ secrets.DOCKERHUB_TOKEN }}
-  zap_scan:
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    name: Scan the webapplication
-    steps:
-      - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.4.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          docker_name: "owasp/zap2docker-stable"
-          target: "https://${{ needs.deploy.outputs.service-url }}"
-          rules_file_name: ".zap/rules.tsv"
-          cmd_options: "-a"
-#  trivy:
-#     needs: [ build ]
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout code
-#     uses: actions/checkout@v3
-#
-#     - name: Scan with Trivy
-#     uses: aquasecurity/trivy-action@0.9.0
-#     with:
-#      args: --severity CRITICAL --quiet $DOCKER_REACT_TEST $DOCKER_MULTI_CLNT $DOCKER_MULTI_NGNX $DOCKER_MULTI_SRVS $DOCKER_MULTI_WRKS
-#      registry: ${{ secrets.DOCKER_REPOSITORY }}
-#      username: ${{ secrets.DOCKERHUB_USERNAME }}
-#      auth_header: ${{ secrets.DOCKERHUB_TOKEN }}
+#      - name: ZAP Scan
+#        uses: zaproxy/action-full-scan@v0.4.0
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          docker_name: "owasp/zap2docker-stable"
+#          target: "https://${{ needs.deploy.outputs.service-url }}"
+#          rules_file_name: ".zap/rules.tsv"
+#          cmd_options: "-a"
