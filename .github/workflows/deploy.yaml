@@ -55,15 +55,15 @@ jobs:
       - run: docker push $DOCKER_MULTI_SRVS
       - run: docker push $DOCKER_MULTI_WRKS
 
-    - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: "${{ secrets.DOCKER_NAMESPACE }}/${{ secrets.DOCKER_REPOSITORY }}:sha-${{ github.sha }}"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "CRITICAL"
+        format: "table"
+        exit-code: "1"
+        ignore-unfixed: true
+        vuln-type: "os,library"
+        severity: "CRITICAL"
 
   sonarcloud:
     name: SonarCloud
