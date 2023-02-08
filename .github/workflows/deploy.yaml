@@ -21,6 +21,12 @@ on:
       - production
 
 jobs:
+  markdown-lint:
+    name: markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npx markdownlint-cli **/*.md
   git-leaks:
     name: secrets detection
     runs-on: ubuntu-latest
