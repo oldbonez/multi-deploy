@@ -42,8 +42,14 @@ Use the code on your own risk.
         vuln-type: "os,library"
         severity: "CRITICAL,HIGH"
   ```
-    - beware of the severity and adapt to your situation.
+    - beware of the severity and adapt to your situation. The compromise between security and usability is a tough one.
   - use less typing and better actions if possible. Comes with a steep learning curve. Try learning something new while $LIFE haunts you.
   - make the app work with the latest version of npm packages. since I'm not a nodejs person, i rather put something online a bit more secure, rather than have the next script kiddy own me in seconds.
+
+  ## Some useful resources
+
+- [https://akx.github.io/travis-to-github-actions/](https://akx.github.io/travis-to-github-actions/)
+- [https://github.com/marketplace/actions/run-travis-yml](https://github.com/marketplace/actions/run-travis-yml)
+- [https://developer.okta.com/blog/2020/05/18/travis-ci-to-github-actions](https://developer.okta.com/blog/2020/05/18/travis-ci-to-github-actions)
 
 

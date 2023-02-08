@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
-    name: docker_container_build_and_scan
+    name: docker_container_build_vulnscan
     strategy:
       matrix:
         os: [ubuntu-latest]
