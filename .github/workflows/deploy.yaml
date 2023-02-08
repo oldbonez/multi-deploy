@@ -78,7 +78,15 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL"
-
+      - name: clientscan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "docker.io/oldbonedocker/multi-deploy:client"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL"
 
   sonarcloud:
     name: SonarCloud
