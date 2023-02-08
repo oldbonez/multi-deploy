@@ -36,6 +36,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+        docker_images: [ ${{ env.DOCKER_REACT_TEST }} ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +59,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "${{ secrets.DOCKER_NAMESPACE }}/${{ secrets.DOCKER_REPOSITORY }}"
+          image-ref: "docker.io/oldbonedocker/react-test"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
