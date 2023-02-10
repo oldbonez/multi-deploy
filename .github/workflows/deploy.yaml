@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: >-
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - run:
           docker build -t $DOCKER_REACT_TEST -f ./client/Dockerfile.dev ./client
       - run: docker run -e CI=true $DOCKER_REACT_TEST npm test
@@ -65,7 +65,7 @@ jobs:
       - run: docker build -t $DOCKER_MULTI_SRVS ./server
       - run: docker build -t $DOCKER_MULTI_WRKS ./worker
       - run: >-
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - run: docker push $DOCKER_MULTI_CLNT
       - run: docker push $DOCKER_MULTI_NGNX
       - run: docker push $DOCKER_MULTI_SRVS
@@ -83,7 +83,7 @@ jobs:
       - name: clientscan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/oldbonedocker/multi-deploy:client"
+          image-ref: "docker.io/oldbonedocker/multi-deploy-client"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -92,7 +92,7 @@ jobs:
       - name: frontendscan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/oldbonedocker/multi-deploy:nginx"
+          image-ref: "docker.io/oldbonedocker/multi-deploy-nginx"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -101,7 +101,7 @@ jobs:
       - name: srvscan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/oldbonedocker/multi-deploy:server"
+          image-ref: "docker.io/oldbonedocker/multi-deploy-server"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -110,7 +110,7 @@ jobs:
       - name: workerscan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/oldbonedocker/multi-deploy:worker"
+          image-ref: "docker.io/oldbonedocker/multi-deploy-worker"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
