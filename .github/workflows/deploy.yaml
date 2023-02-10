@@ -3,10 +3,10 @@ name: Docker CI
 
 env:
   DOCKER_REACT_TEST: oldbonedocker/react-test
-  DOCKER_MULTI_CLNT: oldbonedocker/multi-deploy:client
-  DOCKER_MULTI_NGNX: oldbonedocker/multi-deploy:nginx
-  DOCKER_MULTI_SRVS: oldbonedocker/multi-deploy:server
-  DOCKER_MULTI_WRKS: oldbonedocker/multi-deploy:worker
+  DOCKER_MULTI_CLNT: oldbonedocker/multi-deploy-client
+  DOCKER_MULTI_NGNX: oldbonedocker/multi-deploy-nginx
+  DOCKER_MULTI_SRVS: oldbonedocker/multi-deploy-server
+  DOCKER_MULTI_WRKS: oldbonedocker/multi-deploy-worker
   IMAGE_TAG: ${{ github.sha }}
 
 
@@ -33,8 +33,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build:
     name: docker_container_build_vulnscan
+    needs: [git-leaks, sonarcloud]
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -103,19 +117,6 @@ jobs:
           vuln-type: "os,library"
           severity: "CRITICAL"
 
-  sonarcloud:
-    name: SonarCloud
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 #  zap_scan:
 #    needs: [ build ]
